@@ -1,4 +1,9 @@
-package com.stephenfox;
+package com.stephenfox.compiler;
+
+import com.stephenfox.ArLangLexer;
+import com.stephenfox.ArLangListener;
+import com.stephenfox.ArLangParser;
+import com.stephenfox.bytecode.BytecodeGenerator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,15 +17,19 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ArLangCompiler {
 
   private final String text;
 
   public static void main(String[] args) throws IOException {
-    System.out.println(Arrays.toString(args));
-    if (args.length != 1) {
-      System.out.println(
-          "Please specify the following args: <program>\n" + "i.e. java -jar arlang-compiler.jar 11*22");
+    LOGGER.info("{}", Arrays.toString(args));
+    if (args.length == 0) {
+      LOGGER.info(
+          "Please specify the following args: <program>\n"
+              + "i.e. java -jar arlang-compiler.jar 11*22");
       System.exit(1);
     }
     new ArLangCompiler(args[0]).compile();
@@ -43,7 +52,7 @@ public class ArLangCompiler {
     BytecodeGenerator bytecodeGenerator = new BytecodeGenerator("ArLang");
     ArLangListener arLangListener = new ArLangListenerImpl(bytecodeGenerator);
 
-    ParseTreeWalker.DEFAULT.walk(arLangListener, parser.expr());
+    ParseTreeWalker.DEFAULT.walk(arLangListener, parser.arlang());
 
     final Path path = Path.of(FileSystems.getDefault().getPath(".").toString(), "ArLang.class");
 
