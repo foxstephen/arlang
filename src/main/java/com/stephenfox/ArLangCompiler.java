@@ -1,10 +1,12 @@
 package com.stephenfox;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -17,13 +19,19 @@ public class ArLangCompiler {
   private final String text;
 
   public static void main(String[] args) throws IOException {
-    System.out.println(Arrays.toString(args));
-    if (args.length != 1) {
+    if (args.length == 0) {
       System.out.println(
-          "Please specify the following args: <program>\n" + "i.e. java -jar arlang-compiler.jar 11*22");
+              "Please specify the following args: <program>\n" + "i.e. java -jar arlang-compiler.jar <filename of program>");
       System.exit(1);
     }
-    new ArLangCompiler(args[0]).compile();
+    System.out.print("Compiler options=");
+    System.out.println(Arrays.toString(args));
+    String programFile = args[0];
+    Path of = Path.of(programFile);
+    String program = new String(Files.readAllBytes(of.toAbsolutePath()));
+    System.out.println("Compiling program...");
+    System.out.println(program);
+    new ArLangCompiler(program).compile();
   }
 
   public ArLangCompiler(String text) {
@@ -40,15 +48,13 @@ public class ArLangCompiler {
     TokenStream tokens = new CommonTokenStream(lexer);
     ArLangParser parser = new ArLangParser(tokens);
 
-    BytecodeGenerator bytecodeGenerator = new BytecodeGenerator("ArLang");
-    ArLangListener arLangListener = new ArLangListenerImpl(bytecodeGenerator);
-
-    ParseTreeWalker.DEFAULT.walk(arLangListener, parser.expr());
+    ArLangVisitorImpl arLangVisitor = new ArLangVisitorImpl("ArLang");
+    byte[] byteCode = arLangVisitor.visitProgram(parser.program());
 
     final Path path = Path.of(FileSystems.getDefault().getPath(".").toString(), "ArLang.class");
 
     try (FileOutputStream outputStream = new FileOutputStream(path.toString())) {
-      outputStream.write(bytecodeGenerator.getBytes());
+      outputStream.write(byteCode);
     }
   }
 }
