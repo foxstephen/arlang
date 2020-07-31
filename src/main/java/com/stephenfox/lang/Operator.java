@@ -9,5 +9,6 @@ public enum Operator {
   LT,
   LTE,
   GT,
-  GTE;
+  GTE,
+  EQQ;
 }

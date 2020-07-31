@@ -48,10 +48,10 @@ public class ArLangCompiler {
     TokenStream tokens = new CommonTokenStream(lexer);
     ArLangParser parser = new ArLangParser(tokens);
 
-    ArLangVisitorImpl arLangVisitor = new ArLangVisitorImpl("ArLang");
+    ArLangVisitorImpl arLangVisitor = new ArLangVisitorImpl("Program");
     byte[] byteCode = arLangVisitor.visitProgram(parser.program());
 
-    final Path path = Path.of(FileSystems.getDefault().getPath(".").toString(), "ArLang.class");
+    final Path path = Path.of(FileSystems.getDefault().getPath(".").toString(), "Program.class");
 
     try (FileOutputStream outputStream = new FileOutputStream(path.toString())) {
       outputStream.write(byteCode);
