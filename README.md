@@ -16,7 +16,7 @@ i.e. the list below shows 4 different valid programs.
     mvn clean package
     java -jar target/arlang-compiler.jar <program>
     
-    i.e.
+    e.g.
     java -jar  target/arlang-compiler.jar 1*9
     java -jar  target/arlang-compiler.jar 100*4
     
